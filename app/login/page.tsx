@@ -1,58 +1,78 @@
-'use client';
-
-import { createClient } from '@/utils/supabase/client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+'use client'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+import { image } from '@/utils/image.png'
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const supabase = createClient();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(''); // Reset errors
+    setError(""); // Reset errors
 
     try {
+      // Check if user exists with correct credentials
       const { data, error } = await supabase
-        .from('users') // Assuming your table is called 'users'
-        .select('*')
-        .eq('username', username)
-        .eq('password', password)
+        .from("users") // Assuming your table is called 'users'
+        .select("*")
+        .eq("username", username)
+        .eq("password", password)
         .single();
 
       if (error || !data) {
-        setError('Invalid username or password');
+        setError("Invalid username or password");
         return;
       }
 
-      router.push('/dashboard'); // Redirect to the dashboard on successful login
+      // If the user is logged in (islogin: true), prevent redirection
+      if (data.islogin) {
+        setError("You are already logged in.");
+        return;
+      }
+
+      // If the username and password match and islogin is false, update islogin to true
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({ islogin: true })
+        .eq("username", username);
+
+      if (updateError) {
+        setError("Something went wrong while updating login status.");
+        return;
+      }
+
+      // Redirect to the question page after successful login and update
+      router.push("/question");
+
     } catch (err) {
-      console.error('Login error:', err);
-      setError('Something went wrong, please try again.');
+      console.error("Login error:", err);
+      setError("Something went wrong, please try again.");
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white">
-      <div className="flex w-4/5 max-w-5xl rounded-lg shadow-lg">
+      <div className="flex w-full max-w-screen-xl h-[70vh] rounded-lg shadow-lg">
         {/* Left Section with Illustration */}
-        <div className="hidden w-1/2 bg-gray-50 md:flex items-center justify-center p-8">
+        <div className="hidden w-1/2 h-full bg-white md:flex items-center justify-center p-8 rounded-tl-lg rounded-bl-lg">
+          <h1 className="mt-4 text-3xl font-bold text-gray-800">ZENITHIVE</h1>
           <div className="text-center">
             <img
-              src="/path-to-illustration.png" // Replace with your image path
+              src={image} // Replace with your image path
               alt="Login Illustration"
-              className="w-3/4 mx-auto"
+              className="w-full h-auto max-w-[95%] mx-auto" // Adjust the image size
             />
-            <h1 className="mt-4 text-2xl font-bold text-gray-800">ZENITHIVE</h1>
           </div>
         </div>
 
         {/* Right Section with Login Form */}
-        <div className="w-full p-8 bg-white md:w-1/2">
-          <h2 className="text-3xl font-bold text-center text-gray-800">
+        <div className="w-full p-8 bg-white md:w-1/2 rounded-lg shadow-lg mx-auto h-full">
+          <h2 className="text-4xl font-bold text-center text-gray-800">
             Let's Sign You In
           </h2>
           <p className="mt-2 text-center text-gray-600">
@@ -107,7 +127,7 @@ export default function LoginPage() {
             </a>
           </div>
           <div className="mt-4 text-sm text-center text-gray-600">
-            Don’t have an account?{' '}
+            Don’t have an account?{" "}
             <a href="#" className="font-medium text-indigo-600 hover:underline">
               Register Now
             </a>
