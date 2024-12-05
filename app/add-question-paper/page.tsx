@@ -1,3 +1,5 @@
+
+
 'use client';
 
 import React, { useState } from "react";
@@ -14,6 +16,7 @@ const AddQuestionPage: React.FC = () => {
   const [optionD, setOptionD] = useState<string>('');
   const [correctAnswer, setCorrectAnswer] = useState<string>('A'); // Default correct answer
   const [correctAnswerText, setCorrectAnswerText] = useState<string>('');
+  const [set, setSet] = useState<string>('A'); // Default set is A
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -24,8 +27,11 @@ const AddQuestionPage: React.FC = () => {
     setSuccessMessage('');
     setErrorMessage('');
 
-    // Insert new question into Supabase
-    const { data, error } = await supabase.from('questionPaper1setA').insert([
+    // Construct table name based on selected set
+    const tableName = `questionPaper1set${set}`;
+
+    // Insert new question into the corresponding table
+    const { data, error } = await supabase.from(tableName).insert([
       {
         question_text: questionText,
         option_a: optionA,
@@ -51,6 +57,7 @@ const AddQuestionPage: React.FC = () => {
       setOptionD('');
       setCorrectAnswer('A');
       setCorrectAnswerText('');
+      setSet('A'); // Reset set to 'A'
     }
   };
 
@@ -149,6 +156,24 @@ const AddQuestionPage: React.FC = () => {
             className="mt-1 p-2 w-full border border-gray-300 rounded-lg"
             required
           />
+        </div>
+
+        {/* Set Selection Dropdown */}
+        <div className="mb-4">
+          <label htmlFor="set" className="block text-black font-medium">Select Question Set</label>
+          <select
+            id="set"
+            value={set}
+            onChange={(e) => setSet(e.target.value)}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-lg"
+            required
+          >
+            <option value="A">Set A</option>
+            <option value="B">Set B</option>
+            <option value="C">Set C</option>
+            <option value="D">Set D</option>
+            <option value="E">Set E</option>
+          </select>
         </div>
 
         <button

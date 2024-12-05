@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import QuestionCard from "@/components/QuestionCard";
 import { createClient } from '@/utils/supabase/client';
 import ResultCard from "@/components/ResultCard";  // Import your ResultCard component
+import InstructionCard from "@/components/InstructionCard";
 
 // Initialize Supabase client
 const supabase = createClient();
@@ -12,7 +13,9 @@ const QuestionPage: React.FC = () => {
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
-  const [showResult, setShowResult] = useState(false);  // State to manage showing results
+  const [showResult, setShowResult] = useState(false); // State to manage showing results
+  const [showInstructions, setShowInstructions] = useState(true); // State to manage InstructionCard visibility
+  const [timeRemaining, setTimeRemaining] = useState(1 * 60); // Timer (30 minutes in seconds)
 
   // Fetch questions from Supabase
   useEffect(() => {
@@ -31,7 +34,6 @@ const QuestionPage: React.FC = () => {
           imageSrc: "", // Add image handling if needed
           options: [q.option_a, q.option_b, q.option_c, q.option_d],
           correctOption: q.correct_answer_text, // Assuming you have this field
-          timer: "00:10:00", // Add timer logic if applicable
         }));
         setQuestions(formattedQuestions);
         setSelectedAnswers(Array(data.length).fill("")); // Initialize answers
@@ -40,6 +42,28 @@ const QuestionPage: React.FC = () => {
 
     fetchQuestions();
   }, []);
+
+  // Timer logic with auto-submit
+  useEffect(() => {
+    if (!showInstructions && timeRemaining > 0) {
+      const timer = setInterval(() => {
+        setTimeRemaining((prevTime) => prevTime - 1);
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+
+    // Trigger auto-submit when time is up
+    if (timeRemaining === 0) {
+      handleSubmit();
+    }
+  }, [showInstructions, timeRemaining]);
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleOptionSelect = (selectedOption: string) => {
     const updatedAnswers = [...selectedAnswers];
@@ -60,6 +84,9 @@ const QuestionPage: React.FC = () => {
   };
 
   const handleSubmit = () => {
+    // Clear password cookie
+    document.cookie = "password=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    
     const answersWithDetails = selectedAnswers.map((selectedAnswer, index) => {
       const question = questions[index];
       return {
@@ -71,7 +98,7 @@ const QuestionPage: React.FC = () => {
     });
 
     console.log("Submitted Answers:", answersWithDetails);
-    setShowResult(true);  // Show the result after submission
+    setShowResult(true); // Show the result after submission
   };
 
   if (questions.length === 0) {
@@ -79,46 +106,56 @@ const QuestionPage: React.FC = () => {
   }
 
   if (showResult) {
-    return <ResultCard answers={selectedAnswers} questions={questions} />;  // Display result
+    return <ResultCard answers={selectedAnswers} questions={questions} />; // Display result
   }
 
   return (
-    <div className="p-4">
-      <QuestionCard
-        questionNumber={questions[currentQuestionIndex].questionNumber}
-        totalQuestions={questions[currentQuestionIndex].totalQuestions}
-        question={questions[currentQuestionIndex].question}
-        imageSrc={questions[currentQuestionIndex].imageSrc}
-        options={questions[currentQuestionIndex].options}
-        timer={questions[currentQuestionIndex].timer}
-        selectedOption={selectedAnswers[currentQuestionIndex]}
-        onOptionSelect={handleOptionSelect}
-      />
-      <div className="flex justify-between mt-4">
-        <button
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-          onClick={handlePrevious}
-          disabled={currentQuestionIndex === 0}
-        >
-          Previous
-        </button>
-        {currentQuestionIndex < questions.length - 1 ? (
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            onClick={handleNext}
-          >
-            Next
-          </button>
-        ) : (
-          <button
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            onClick={handleSubmit}
-          >
-            Submit
-          </button>
-        )}
-      </div>
-    </div>
+    <>
+      {showInstructions ? (
+        <InstructionCard
+          onOkay={() => setShowInstructions(false)} // Hide instructions on Okay button click
+        />
+      ) : (
+        <div className="p-4 relative">
+          <div className="absolute top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded shadow-lg">
+            Time Remaining: {formatTime(timeRemaining)}
+          </div>
+          <QuestionCard
+            questionNumber={questions[currentQuestionIndex].questionNumber}
+            totalQuestions={questions[currentQuestionIndex].totalQuestions}
+            question={questions[currentQuestionIndex].question}
+            imageSrc={questions[currentQuestionIndex].imageSrc}
+            options={questions[currentQuestionIndex].options}
+            selectedOption={selectedAnswers[currentQuestionIndex]}
+            onOptionSelect={handleOptionSelect}
+          />
+          <div className="flex justify-between mt-4">
+            <button
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+              onClick={handlePrevious}
+              disabled={currentQuestionIndex === 0}
+            >
+              Previous
+            </button>
+            {currentQuestionIndex < questions.length - 1 ? (
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                onClick={handleNext}
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                onClick={handleSubmit}
+              >
+                Submit
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

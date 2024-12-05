@@ -6,7 +6,7 @@ interface QuestionCardProps {
   question: string;
   imageSrc: string;
   options: string[];
-  timer: string;
+  // timer: string;
   selectedOption: string; // Add this prop
   onOptionSelect: (selectedOption: string) => void;
 }
@@ -17,7 +17,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   question,
   imageSrc,
   options,
-  timer,
+  // timer,
   selectedOption, // Receive this prop
   onOptionSelect,
 }) => {
@@ -28,7 +28,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
     >
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-gray-600">History Quiz</h2>
-        <div className="text-gray-600 font-medium">Timer: {timer}</div>
+        {/* <div className="text-gray-600 font-medium">Timer: {timer}</div> */}
       </div>
 
       <div className="space-y-4">
