@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import QuestionCard from "@/components/QuestionCard";
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from '@/utils/supabase/client';
+import ResultCard from "@/components/ResultCard";  // Import your ResultCard component
 
 // Initialize Supabase client
 const supabase = createClient();
@@ -11,6 +12,7 @@ const QuestionPage: React.FC = () => {
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
+  const [showResult, setShowResult] = useState(false);  // State to manage showing results
 
   // Fetch questions from Supabase
   useEffect(() => {
@@ -21,13 +23,14 @@ const QuestionPage: React.FC = () => {
       if (error) {
         console.error("Error fetching questions:", error.message);
       } else if (data) {
-        // Format questions to match the expected structure
         const formattedQuestions = data.map((q: any, index: number) => ({
-          questionNumber: index + 1,
+          id: q.id,
+          questionNumber: index + 1, // Start from 1 for question numbers
           totalQuestions: data.length,
           question: q.question_text,
           imageSrc: "", // Add image handling if needed
           options: [q.option_a, q.option_b, q.option_c, q.option_d],
+          correctOption: q.correct_answer_text, // Assuming you have this field
           timer: "00:10:00", // Add timer logic if applicable
         }));
         setQuestions(formattedQuestions);
@@ -57,12 +60,26 @@ const QuestionPage: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    console.log("Submitted Answers:", selectedAnswers);
-    alert(`Your answers: ${JSON.stringify(selectedAnswers)}`);
+    const answersWithDetails = selectedAnswers.map((selectedAnswer, index) => {
+      const question = questions[index];
+      return {
+        questionId: question.id, // Store the unique ID of the question
+        selectedOption: selectedAnswer,
+        correctOption: question.correctOption, // Store the correct option
+        isCorrect: selectedAnswer === question.correctOption, // Compare selected and correct option
+      };
+    });
+
+    console.log("Submitted Answers:", answersWithDetails);
+    setShowResult(true);  // Show the result after submission
   };
 
   if (questions.length === 0) {
     return <div>Loading questions...</div>;
+  }
+
+  if (showResult) {
+    return <ResultCard answers={selectedAnswers} questions={questions} />;  // Display result
   }
 
   return (
