@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client"; // Assuming you have this utility to create the Supabase client
 
-export default function CreateUserPage() {
+export default function CreateUser() {
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);

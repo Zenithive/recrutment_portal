@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { image } from '@/utils/image.png';
+// import { image } from '@/utils/image.png';
 import Cookies from "js-cookie"; // Import js-cookie
 
 export default function LoginPage() {
@@ -60,65 +60,6 @@ export default function LoginPage() {
     }
   };
 
-
-
-
-  // const handleLogin = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setError(""); // Reset errors
-  
-  //   try {
-  //     // Check if user exists with correct credentials
-  //     const { data, error } = await supabase
-  //       .from("users") // Assuming your table is called 'users'
-  //       .select("*")
-  //       .eq("username", username)
-  //       .eq("password", password)
-  //       .single();
-  
-  //     if (error || !data) {
-  //       setError("Invalid username or password");
-  //       return;
-  //     }
-  
-  //     // Conditionally store cookies based on usertype
-  //     if (data.usertype === "admin") {
-  //       // If user is admin, store password and usertype in cookies
-  //       Cookies.set("password", data.password, { expires: 7, secure: true });
-  //       Cookies.set("usertype", data.usertype, { expires: 7, secure: true });
-  //     } else if (data.usertype === "student") {
-  //       // If user is student, store username and usertype in cookies
-  //       Cookies.set("username", data.username, { expires: 7, secure: true });
-  //       Cookies.set("usertype", data.usertype, { expires: 7, secure: true });
-  //     }
-  
-  //     // If the user is logged in (islogin: true), prevent redirection
-  //     if (data.islogin) {
-  //       setError("You are already logged in.");
-  //       return;
-  //     }
-  
-  //     // If the username and password match and islogin is false, update islogin to true
-  //     const { error: updateError } = await supabase
-  //       .from("users")
-  //       .update({ islogin: true })
-  //       .eq("username", username);
-  
-  //     if (updateError) {
-  //       setError("Something went wrong while updating login status.");
-  //       return;
-  //     }
-  
-  //     // Redirect to the question page after successful login and update
-  //     router.push("/question");
-  
-  //   } catch (err) {
-  //     console.error("Login error:", err);
-  //     setError("Something went wrong, please try again.");
-  //   }
-  // };
-  
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-white">
       <div className="flex w-full max-w-screen-xl h-[70vh] rounded-lg shadow-lg">
@@ -126,11 +67,11 @@ export default function LoginPage() {
         <div className="hidden w-1/2 h-full bg-white md:flex items-center justify-center p-8 rounded-tl-lg rounded-bl-lg">
           <h1 className="mt-4 text-3xl font-bold text-gray-800">ZENITHIVE</h1>
           <div className="text-center">
-            <img
+            {/* <img
               src={image} // Replace with your image path
               alt="Login Illustration"
               className="w-full h-auto max-w-[95%] mx-auto" // Adjust the image size
-            />
+            /> */}
           </div>
         </div>
 
