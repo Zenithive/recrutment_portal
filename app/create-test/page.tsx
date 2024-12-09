@@ -50,48 +50,42 @@ const TestsPage = () => {
     }
   };
 
-  const handleAddQuestion = async (questionData: {
+
+  
+
+  const handleAddQuestion = async (questionsData: {
     question: string;
     options: string[];
     correctOption: number;
-  }) => {
-    const { question, options, correctOption } = questionData;
-  
+  }[]) => {
     if (!selectedTest) {
       setError("No test selected.");
       return;
     }
-    // console.log("Selected Test:", selectedTest); // Log the entire selectedTest object
-
-    // Get the correct option text
-    const correctOptionText = options[correctOption];
-  
-    // Log the test_id to ensure it is correct
-    console.log("test_id being passed:", selectedTest.id);
   
     try {
-      const { data, error } = await supabase
-        .from('questions')
-        .insert([{
-          question: question,
-          option_a: options[0],
-          option_b: options[1],
-          option_c: options[2],
-          option_d: options[3],
-          correct_option: ['A', 'B', 'C', 'D'][correctOption],  // Store the correct option as A, B, C, or D
-          correct_option_text: correctOptionText,
-          test_id: selectedTest.testid, // Use the `selectedTest.id` passed from the parent component
-        }]);
+      const formattedQuestions = questionsData.map((q) => ({
+        question: q.question,
+        option_a: q.options[0],
+        option_b: q.options[1],
+        option_c: q.options[2],
+        option_d: q.options[3],
+        correct_option: ['A', 'B', 'C', 'D'][q.correctOption],
+        correct_option_text: q.options[q.correctOption],
+        test_id: selectedTest.testid, // Use the `testid` from selected test
+      }));
+  
+      const { data, error } = await supabase.from('questions').insert(formattedQuestions);
   
       if (error) {
         throw error;
       }
   
-      // console.log('Question added:', data);
-      setShowQuestionModal(false);  // Close the modal
-      fetchTests();  // Refresh the tests
+      setShowQuestionModal(false); // Close the modal
+      fetchTests(); // Refresh the tests
     } catch (error) {
-      console.error('Error adding question:', error);
+      console.error('Error adding questions:', error);
+      setError("Failed to add questions.");
     }
   };
   

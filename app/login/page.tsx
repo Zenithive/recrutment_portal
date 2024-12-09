@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-// import { image } from '@/utils/image.png';
-import Cookies from "js-cookie"; // Import js-cookie
+import Image from "next/image"; // Import the Image component from Next.js
+import Login from "@/app/Login.png"; // Correctly import the image
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -31,12 +31,10 @@ export default function LoginPage() {
       }
 
      
-      Cookies.set("password", data.password, { expires: 7, secure: true });
-      Cookies.set("usertype", data.usertype, { expires: 7, secure: true });
       
       // If the user is logged in (islogin: true), prevent redirection
       if (data.islogin) {
-        setError("You are already logged in.");
+        setError("You are already logged in, and started the test.");
         return;
       }
 
@@ -50,6 +48,11 @@ export default function LoginPage() {
         setError("Something went wrong while updating login status.");
         return;
       }
+
+      // Store username and usertype in session storage
+      sessionStorage.setItem("username", data.username);
+      sessionStorage.setItem("usertype", data.usertype);
+      sessionStorage.setItem("test_id", data.test_id);
 
       // Redirect to the question page after successful login and update
       router.push("/question");
@@ -65,13 +68,8 @@ export default function LoginPage() {
       <div className="flex w-full max-w-screen-xl h-[70vh] rounded-lg shadow-lg">
         {/* Left Section with Illustration */}
         <div className="hidden w-1/2 h-full bg-white md:flex items-center justify-center p-8 rounded-tl-lg rounded-bl-lg">
-          <h1 className="mt-4 text-3xl font-bold text-gray-800">ZENITHIVE</h1>
           <div className="text-center">
-            {/* <img
-              src={image} // Replace with your image path
-              alt="Login Illustration"
-              className="w-full h-auto max-w-[95%] mx-auto" // Adjust the image size
-            /> */}
+            <Image src={Login} alt="Login Icon" width={400} height={400} />
           </div>
         </div>
 
@@ -98,7 +96,7 @@ export default function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full px-4 py-2 mt-1 text-gray-900 bg-gray-100 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-4 py-2 mt-1 text-gray-900 bg-gray-100 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
             <div>
@@ -114,13 +112,13 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-2 mt-1 text-gray-900 bg-gray-100 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-4 py-2 mt-1 text-gray-900 bg-gray-100 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
-              className="w-full px-4 py-2 font-semibold text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="w-full px-4 py-2 font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Sign In
             </button>
@@ -128,13 +126,12 @@ export default function LoginPage() {
 
           <div className="mt-4 text-sm text-center text-gray-600">
             <a href="#" className="text-indigo-600 hover:underline">
-              Forgot Password?
+              {/* Forgot Password? */}
             </a>
           </div>
           <div className="mt-4 text-sm text-center text-gray-600">
-            Don’t have an account?{" "}
             <a href="#" className="font-medium text-indigo-600 hover:underline">
-              Register Now
+              {/* Register Now */}
             </a>
           </div>
         </div>

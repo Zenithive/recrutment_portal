@@ -10,8 +10,6 @@ type InviteModalProps = {
 };
 
 const InviteModal: React.FC<InviteModalProps> = ({ testId, onClose }) => {
-  // console.log(`test_id`, test_id);
-  console.log(`testId`, testId);
   const [usernames, setUsernames] = useState<string[]>([""]);
   const [errors, setErrors] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -29,73 +27,55 @@ const InviteModal: React.FC<InviteModalProps> = ({ testId, onClose }) => {
     return password;
   };
 
-  // Handle Excel file upload
-  // const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onload = (event) => {
-  //       const data = event.target?.result;
-  //       if (data) {
-  //         const workbook = XLSX.read(data, { type: "binary" });
-  //         const sheetName = workbook.SheetNames[0];
-  //         const sheet = workbook.Sheets[sheetName];
-  //         const parsedData: any[] = XLSX.utils.sheet_to_json(sheet);
-
-  //         // Extract usernames from the parsed data
-  //         const importedUsernames = parsedData
-  //           .map((row) => row.Username) // Assumes a column named "Username"
-  //           .filter(Boolean);
-
-  //         if (importedUsernames.length === 0) {
-  //           setErrors(["No valid usernames found in the file."]);
-  //         } else {
-  //           setUsernames((prev) => [...prev, ...importedUsernames]);
-  //         }
-  //       }
-  //     };
-  //     reader.readAsBinaryString(file);
-  //   }
-  // };
-
-  // Handle Excel file upload
-const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const data = event.target?.result;
-      if (data) {
-        const workbook = XLSX.read(data, { type: "binary" });
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const parsedData: any[] = XLSX.utils.sheet_to_json(sheet);
-
-        // Extract usernames from the parsed data
-        const importedUsernames = parsedData
-          .map((row) => row.Username) // Assumes a column named "Username"
-          .filter(Boolean);
-
-        if (importedUsernames.length === 0) {
-          setErrors(["No valid usernames found in the file."]);
-        } else {
-          setUsernames((prev) => {
-            const updatedUsernames = [...prev];
-
-            // Ensure Username 1 is always populated
-            if (!updatedUsernames[0]) {
-              updatedUsernames[0] = importedUsernames.shift() || "";
-            }
-
-            return [...updatedUsernames, ...importedUsernames];
-          });
-        }
+  // Send invites to users
+  const sendInvites = async () => {
+    for (const email of usernames) {
+      const { error } = await supabase.auth.admin.inviteUserByEmail(email);
+      if (error) {
+        console.error(`Failed to send invite to ${email}:`, error.message);
+      } else {
+        console.log(`Invite sent to ${email}`);
       }
-    };
-    reader.readAsBinaryString(file);
-  }
-};
+    }
+  };
 
+  // Handle Excel file upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const data = event.target?.result;
+        if (data) {
+          const workbook = XLSX.read(data, { type: "binary" });
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const parsedData: any[] = XLSX.utils.sheet_to_json(sheet);
+
+          // Extract usernames from the parsed data
+          const importedUsernames = parsedData
+            .map((row) => row.Username) // Assumes a column named "Username"
+            .filter(Boolean);
+
+          if (importedUsernames.length === 0) {
+            setErrors(["No valid usernames found in the file."]);
+          } else {
+            setUsernames((prev) => {
+              const updatedUsernames = [...prev];
+
+              // Ensure Username 1 is always populated
+              if (!updatedUsernames[0]) {
+                updatedUsernames[0] = importedUsernames.shift() || "";
+              }
+
+              return [...updatedUsernames, ...importedUsernames];
+            });
+          }
+        }
+      };
+      reader.readAsBinaryString(file);
+    }
+  };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,7 +113,10 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         return;
       }
 
-      setSuccessMessage("Users created successfully!");
+      // Send invites after successful user creation
+      await sendInvites();
+
+      setSuccessMessage("Users created and invites sent successfully!");
       setUsernames([""]); // Reset the form
     } catch (err) {
       console.error("Error creating users:", err);

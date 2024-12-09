@@ -2,11 +2,17 @@
 
 import React, { useState } from "react";
 import { FiHome, FiFileText, FiClipboard, FiUser } from "react-icons/fi"; // Import icons
-import { useRouter } from 'next/navigation'; // Import useRouter hook for routing
+import { useRouter, usePathname } from 'next/navigation'; // Import usePathname and useRouter hooks
 
 const Sidebar = () => {
   const [active, setActive] = useState<string>("Dashboard");
   const router = useRouter(); // Create router instance
+  const pathname = usePathname(); // Get the current path
+
+  // Don't render the Sidebar on the '/login' page
+  if (pathname === "/login" || pathname === "/question") {
+    return null;
+  }
 
   // Menu items
   const menuItems = [

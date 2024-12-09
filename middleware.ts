@@ -3,19 +3,19 @@ import { updateSession } from "@/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
   // Get the usertype from the cookies (could be undefined)
-  const userTypeCookie = request.cookies.get("usertype")?.value; // Access the cookie value safely
-  const passwordCookie = request.cookies.get("password");
+  // const userTypeCookie = request.cookies.get("usertype")?.value; // Access the cookie value safely
+  // const passwordCookie = request.cookies.get("password");
 
   // If usertype is 'student' and trying to access a page other than /login or /question
-  if (userTypeCookie === "student" && !["/login", "/question"].includes(request.nextUrl.pathname)) {
-    // Redirect to login page if trying to access an unauthorized page
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  // if (userTypeCookie === "student" && !["/login", "/question"].includes(request.nextUrl.pathname)) {
+  //   // Redirect to login page if trying to access an unauthorized page
+  //   return NextResponse.redirect(new URL("/login", request.url));
+  // }
 
-  // If password cookie is missing and trying to access /question, redirect to login
-  if (request.nextUrl.pathname === "/question" && !passwordCookie) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  // // If password cookie is missing and trying to access /question, redirect to login
+  // if (request.nextUrl.pathname === "/question" && !passwordCookie) {
+  //   return NextResponse.redirect(new URL("/login", request.url));
+  // }
 
   // Continue with the default session handling
   return await updateSession(request);

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from "react";
 import QuestionCard from "@/components/QuestionCard";
-import { createClient } from '@/utils/supabase/client';
-import ResultCard from "@/components/ResultCard";  // Import your ResultCard component
+import { createClient } from "@/utils/supabase/client";
+import ResultCard from "@/components/ResultCard"; // Import your ResultCard component
 import InstructionCard from "@/components/InstructionCard";
 
 // Initialize Supabase client
@@ -16,32 +16,59 @@ const QuestionPage: React.FC = () => {
   const [showResult, setShowResult] = useState(false); // State to manage showing results
   const [showInstructions, setShowInstructions] = useState(true); // State to manage InstructionCard visibility
   const [timeRemaining, setTimeRemaining] = useState(1 * 60); // Timer (30 minutes in seconds)
+  const [username, setUsername] = useState<string | null>(null); // Dynamic username from session
+  const [testid, setTestid] = useState<number | null>(null); // Dynamic testid
 
-  // Fetch questions from Supabase
+  // console.log(`testid`, testid);
+
   useEffect(() => {
-    const fetchQuestions = async () => {
-      const { data, error } = await supabase
-        .from("questionPaper1setA") // Your Supabase table name
-        .select("*");
-      if (error) {
-        console.error("Error fetching questions:", error.message);
-      } else if (data) {
-        const formattedQuestions = data.map((q: any, index: number) => ({
-          id: q.id,
-          questionNumber: index + 1, // Start from 1 for question numbers
-          totalQuestions: data.length,
-          question: q.question_text,
-          imageSrc: "", // Add image handling if needed
-          options: [q.option_a, q.option_b, q.option_c, q.option_d],
-          correctOption: q.correct_answer_text, // Assuming you have this field
-        }));
-        setQuestions(formattedQuestions);
-        setSelectedAnswers(Array(data.length).fill("")); // Initialize answers
+    const fetchSessionData = async () => {
+      if (typeof window !== "undefined") {
+        const storedUsername = sessionStorage.getItem("username");
+        const storedTestid = sessionStorage.getItem("test_id");
+  
+        setUsername(storedUsername);
+        setTestid(storedTestid ? parseInt(storedTestid, 10) : null);
       }
     };
-
-    fetchQuestions();
+  
+    fetchSessionData();
   }, []);
+
+
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      if (!testid) return; // Wait until testid is available
+  
+      const { data, error } = await supabase
+        .from("questions")
+        .select("*")
+        .eq("test_id", testid);
+  
+      if (error) {
+        console.error("Error fetching questions:", error.message);
+        return;
+      }
+  
+      if (data) {
+        const formattedQuestions = data.map((q: any, index: number) => ({
+          id: q.id,
+          questionNumber: index + 1,
+          totalQuestions: data.length,
+          question: q.question,
+          imageSrc: q.image_src || "",
+          options: [q.option_a, q.option_b, q.option_c, q.option_d],
+          correctOption: q.correct_option_text,
+        }));
+  
+        setQuestions(formattedQuestions);
+        setSelectedAnswers(Array(data.length).fill(""));
+      }
+    };
+  
+    fetchQuestions();
+  }, [testid]); // Re-run when testid is set
 
   // Timer logic with auto-submit
   useEffect(() => {
@@ -62,7 +89,7 @@ const QuestionPage: React.FC = () => {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleOptionSelect = (selectedOption: string) => {
@@ -83,10 +110,11 @@ const QuestionPage: React.FC = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Clear password cookie
-    document.cookie = "password=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-    
+    document.cookie =
+      "password=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+
     const answersWithDetails = selectedAnswers.map((selectedAnswer, index) => {
       const question = questions[index];
       return {
@@ -98,6 +126,31 @@ const QuestionPage: React.FC = () => {
     });
 
     console.log("Submitted Answers:", answersWithDetails);
+
+    // Calculate the result (correct/total)
+    const correctAnswers = answersWithDetails.filter(
+      (answer) => answer.isCorrect
+    ).length;
+    const totalQuestions = questions.length;
+    const result = `${correctAnswers}/${totalQuestions}`;
+
+    // Store the result in Supabase
+    const { error } = await supabase
+      .from("results") // Your results table name
+      .insert([
+        {
+          testid: testid,
+          username: username,
+          result: result,
+        },
+      ]);
+
+    if (error) {
+      console.error("Error storing result:", error.message);
+    } else {
+      console.log("Result stored successfully:", result);
+    }
+
     setShowResult(true); // Show the result after submission
   };
 
