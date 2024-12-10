@@ -136,51 +136,7 @@ const QuestionPage: React.FC = () => {
     }
   };
 
-  // const handleSubmit = async () => {
 
-  //   localStorage.setItem("timeRemaining", "0");
-  //   // Clear password cookie
-  //   document.cookie =
-  //     "password=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-
-  //   const answersWithDetails = selectedAnswers.map((selectedAnswer, index) => {
-  //     const question = questions[index];
-  //     return {
-  //       questionId: question.id, // Store the unique ID of the question
-  //       selectedOption: selectedAnswer,
-  //       correctOption: question.correctOption, // Store the correct option
-  //       isCorrect: selectedAnswer === question.correctOption, // Compare selected and correct option
-  //     };
-  //   });
-
-  //   console.log("Submitted Answers:", answersWithDetails);
-
-  //   // Calculate the result (correct/total)
-  //   const correctAnswers = answersWithDetails.filter(
-  //     (answer) => answer.isCorrect
-  //   ).length;
-  //   const totalQuestions = questions.length;
-  //   const result = `${correctAnswers}/${totalQuestions}`;
-
-  //   // Store the result in Supabase
-  //   const { error } = await supabase
-  //     .from("results") // Your results table name
-  //     .insert([
-  //       {
-  //         testid: testid,
-  //         username: username,
-  //         result: result,
-  //       },
-  //     ]);
-
-  //   if (error) {
-  //     console.error("Error storing result:", error.message);
-  //   } else {
-  //     console.log("Result stored successfully:", result);
-  //   }
-
-  //   setShowResult(true); // Show the result after submission
-  // };
 
 
 

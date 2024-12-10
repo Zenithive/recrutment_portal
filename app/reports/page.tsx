@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client"; // Make sure to import your supabase client
 
@@ -29,34 +29,36 @@ const Dashboard: React.FC = () => {
   }, []); // Run once when the component mounts
 
   return (
-    <div style={{ padding: "20px", textAlign: "center" }}>
-      {/* <h1 style={{ color: "black" }}>This is the dashboard for admin</h1> */}
-      
+    <div className="p-8 text-center">
+      <h1 className="text-2xl font-bold text-black mb-4">This is the results section</h1>
+
       {loading ? (
-        <p>Loading results...</p> // Display loading message until data is fetched
+        <p className="text-black">Loading results...</p> // Display loading message until data is fetched
       ) : (
         <div>
           {results.length > 0 ? (
-            <table style={{ width: "100%", marginTop: "20px", borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <th style={{ border: "1px solid black", padding: "8px", color: "black" }}>Username</th>
-                  <th style={{ border: "1px solid black", padding: "8px", color: "black" }}>Test ID</th>
-                  <th style={{ border: "1px solid black", padding: "8px", color: "black" }}>Result</th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.map((result, index) => (
-                  <tr key={index}>
-                    <td style={{ border: "1px solid black", padding: "8px", color: "black" }}>{result.username}</td>
-                    <td style={{ border: "1px solid black", padding: "8px", color: "black" }}>{result.testid}</td>
-                    <td style={{ border: "1px solid black", padding: "8px", color: "black" }}>{result.result}</td>
+            <div className="max-h-[800px] overflow-y-auto"> {/* Scrollable container */}
+              <table className="w-full mt-4 border-collapse">
+                <thead>
+                  <tr>
+                    <th className="border border-black p-2 text-black">Username</th>
+                    <th className="border border-black p-2 text-black">Test ID</th>
+                    <th className="border border-black p-2 text-black">Result</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {results.map((result, index) => (
+                    <tr key={index}>
+                      <td className="border border-black p-2 text-black">{result.username}</td>
+                      <td className="border border-black p-2 text-black">{result.testid}</td>
+                      <td className="border border-black p-2 text-black">{result.result}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : (
-            <p>No results found.</p> // If no results are found
+            <p className="text-black">No results found.</p> // If no results are found
           )}
         </div>
       )}
