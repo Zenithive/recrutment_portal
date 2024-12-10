@@ -29,7 +29,7 @@ const Sidebar = () => {
 
     // Redirect to '/add-question-paper' when the "Create Question Paper" item is clicked
     if (itemName === "Create Question Paper") {
-      router.push("/add-question-paper");
+      router.push("/create-test");
     }
   };
 

@@ -27,7 +27,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
       style={{ userSelect: "none" }} // Disable copying for the entire card
     >
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-600">History Quiz</h2>
+        <h2 className="text-xl font-bold text-gray-600">Aptitude Test</h2>
         {/* <div className="text-gray-600 font-medium">Timer: {timer}</div> */}
       </div>
 

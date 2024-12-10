@@ -5,6 +5,7 @@ import QuestionCard from "@/components/QuestionCard";
 import { createClient } from "@/utils/supabase/client";
 import ResultCard from "@/components/ResultCard"; // Import your ResultCard component
 import InstructionCard from "@/components/InstructionCard";
+import Cookies from "js-cookie";
 
 // Initialize Supabase client
 const supabase = createClient();
@@ -24,10 +25,10 @@ const QuestionPage: React.FC = () => {
   useEffect(() => {
     const fetchSessionData = async () => {
       if (typeof window !== "undefined") {
-        const storedUsername = sessionStorage.getItem("username");
-        const storedTestid = sessionStorage.getItem("test_id");
+        const storedUsername = Cookies.get("username");
+        const storedTestid = Cookies.get("test_id");
   
-        setUsername(storedUsername);
+        setUsername(storedUsername || null);
         setTestid(storedTestid ? parseInt(storedTestid, 10) : null);
       }
     };

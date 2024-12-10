@@ -84,15 +84,21 @@ const InviteModal: React.FC<InviteModalProps> = ({ testId, onClose }) => {
     setSuccessMessage(null);
 
     const newErrors: string[] = [];
+
+
     const usersToInsert = usernames
       .map((username) => {
         if (!username) {
           newErrors.push("All usernames must be filled in.");
           return null;
         }
+        // const password = generateRandomPassword(12); // Generate a random password
+        const password = 'gec123'; // Generate a random password
         return {
-          username,
-          password: generateRandomPassword(12),
+          username: username, // Use the email as the username
+          // password: password,
+          password: 'gec123', 
+          user_metadata: { username, password }, // Store in user_metadata
           islogin: false,
           usertype: "student",
           test_id: testId,
@@ -114,7 +120,7 @@ const InviteModal: React.FC<InviteModalProps> = ({ testId, onClose }) => {
       }
 
       // Send invites after successful user creation
-      await sendInvites();
+      // await sendInvites();
 
       setSuccessMessage("Users created and invites sent successfully!");
       setUsernames([""]); // Reset the form

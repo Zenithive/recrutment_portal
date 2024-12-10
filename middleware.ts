@@ -2,23 +2,28 @@ import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  // Get the usertype from the cookies (could be undefined)
-  // const userTypeCookie = request.cookies.get("usertype")?.value; // Access the cookie value safely
-  // const passwordCookie = request.cookies.get("password");
+  // Retrieve usertype and password from cookies
+  const usertype = request.cookies.get("usertype")?.value;
+  console.log(`usertype`, usertype);
+  const password = request.cookies.get("password")?.value;
 
-  // If usertype is 'student' and trying to access a page other than /login or /question
-  // if (userTypeCookie === "student" && !["/login", "/question"].includes(request.nextUrl.pathname)) {
-  //   // Redirect to login page if trying to access an unauthorized page
-  //   return NextResponse.redirect(new URL("/login", request.url));
-  // }
+  // If no usertype is found, restrict access to only /login page
+  if (!usertype && request.nextUrl.pathname !== "/login") {
+    return NextResponse.redirect(new URL("/login", request.url)); // Redirect to login
+  }
 
-  // // If password cookie is missing and trying to access /question, redirect to login
-  // if (request.nextUrl.pathname === "/question" && !passwordCookie) {
-  //   return NextResponse.redirect(new URL("/login", request.url));
-  // }
+  // If usertype is 'student', restrict access to only /login and /question
+  if (usertype === "student" && !["/login", "/question"].includes(request.nextUrl.pathname)) {
+    return NextResponse.redirect(new URL("/login", request.url)); // Redirect to login
+  }
 
-  // Continue with the default session handling
-  return await updateSession(request);
+  // If the user is admin and password is not set, restrict access
+  if (usertype === "admin" && !password) {
+    return NextResponse.redirect(new URL("/login", request.url)); // Redirect to login if password is missing
+  }
+
+  // Allow access for other valid cases
+  return NextResponse.next();
 }
 
 export const config = {

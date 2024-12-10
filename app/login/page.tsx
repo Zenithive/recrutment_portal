@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image"; // Import the Image component from Next.js
 import Login from "@/app/Login.png"; // Correctly import the image
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -12,10 +13,61 @@ export default function LoginPage() {
   const supabase = createClient();
   const router = useRouter();
 
+  // const handleLogin = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setError(""); // Reset errors
+
+  //   try {
+  //     // Check if user exists with correct credentials
+  //     const { data, error } = await supabase
+  //       .from("users") // Assuming your table is called 'users'
+  //       .select("*")
+  //       .eq("username", username)
+  //       .eq("password", password)
+  //       .single();
+
+  //     if (error || !data) {
+  //       setError("Invalid username or password");
+  //       return;
+  //     }
+
+     
+      
+  //     // If the user is logged in (islogin: true), prevent redirection
+  //     if (data.islogin) {
+  //       setError("You are already logged in, and started the test.");
+  //       return;
+  //     }
+
+  //     // If the username and password match and islogin is false, update islogin to true
+  //     const { error: updateError } = await supabase
+  //       .from("users")
+  //       .update({ islogin: true })
+  //       .eq("username", username);
+
+  //     if (updateError) {
+  //       setError("Something went wrong while updating login status.");
+  //       return;
+  //     }
+
+  //     // Store username and usertype in session storage
+  //     sessionStorage.setItem("username", data.username);
+  //     sessionStorage.setItem("usertype", data.usertype);
+  //     sessionStorage.setItem("test_id", data.test_id);
+
+  //     // Redirect to the question page after successful login and update
+  //     router.push("/question");
+
+  //   } catch (err) {
+  //     console.error("Login error:", err);
+  //     setError("Something went wrong, please try again.");
+  //   }
+  // };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); // Reset errors
-
+  
     try {
       // Check if user exists with correct credentials
       const { data, error } = await supabase
@@ -24,44 +76,55 @@ export default function LoginPage() {
         .eq("username", username)
         .eq("password", password)
         .single();
-
+  
       if (error || !data) {
         setError("Invalid username or password");
         return;
       }
-
-     
-      
-      // If the user is logged in (islogin: true), prevent redirection
-      if (data.islogin) {
-        setError("You are already logged in, and started the test.");
+  
+      // If the usertype is "admin", skip the `islogin` check
+      if (data.usertype === "admin") {
+        // Store data in cookies
+        Cookies.set("username", data.username, { expires: 5 / 24 }); // Cookie expires in 1 day
+        Cookies.set("usertype", data.usertype, { expires: 5 / 24 });
+        Cookies.set("password", data.password, { expires: 5 / 24 });
+  
+        // Redirect to the admin dashboard
+        // router.push("/dashboard-for-admin");
+        router.push("/create-test");
         return;
       }
-
+  
+      // For non-admin users, check if the user is already logged in (islogin: true)
+      if (data.islogin) {
+        setError("You are already logged in and started the test.");
+        return;
+      }
+  
       // If the username and password match and islogin is false, update islogin to true
       const { error: updateError } = await supabase
         .from("users")
         .update({ islogin: true })
         .eq("username", username);
-
+  
       if (updateError) {
         setError("Something went wrong while updating login status.");
         return;
       }
-
-      // Store username and usertype in session storage
-      sessionStorage.setItem("username", data.username);
-      sessionStorage.setItem("usertype", data.usertype);
-      sessionStorage.setItem("test_id", data.test_id);
-
-      // Redirect to the question page after successful login and update
+  
+      // Store data in cookies for non-admin users
+      Cookies.set("username", data.username, { expires: 5 / 24 });
+      Cookies.set("usertype", data.usertype, { expires: 5 / 24 });
+      Cookies.set("test_id", data.test_id, { expires: 5 / 24 });
+  
+      // Redirect to the question page for non-admin users
       router.push("/question");
-
     } catch (err) {
       console.error("Login error:", err);
       setError("Something went wrong, please try again.");
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white">
