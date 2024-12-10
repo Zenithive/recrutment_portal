@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import ResultCard from "@/components/ResultCard"; // Import your ResultCard component
 import InstructionCard from "@/components/InstructionCard";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation"; // Import useRouter 
 
 // Initialize Supabase client
 const supabase = createClient();
@@ -19,6 +20,7 @@ const QuestionPage: React.FC = () => {
   const [timeRemaining, setTimeRemaining] = useState(1 * 60); // Timer (30 minutes in seconds)
   const [username, setUsername] = useState<string | null>(null); // Dynamic username from session
   const [testid, setTestid] = useState<number | null>(null); // Dynamic testid
+  const router = useRouter();
 
   // console.log(`testid`, testid);
 
@@ -35,6 +37,26 @@ const QuestionPage: React.FC = () => {
   
     fetchSessionData();
   }, []);
+
+  // Redirect to login page after showing results
+  useEffect(() => {
+    if (showResult) {
+      const timer = setTimeout(() => {
+        router.push("/login"); // Redirect to login page
+      }, 3000); // Delay of 3 seconds to display the result
+
+      return () => clearTimeout(timer);
+    }
+  }, [showResult, router]);
+
+  // Retrieve timer state on component mount
+  useEffect(() => {
+    const savedTime = localStorage.getItem("timeRemaining");
+    if (savedTime) {
+      setTimeRemaining(parseInt(savedTime, 10));
+    }
+  }, []);
+
 
 
 
@@ -75,13 +97,16 @@ const QuestionPage: React.FC = () => {
   useEffect(() => {
     if (!showInstructions && timeRemaining > 0) {
       const timer = setInterval(() => {
-        setTimeRemaining((prevTime) => prevTime - 1);
+        setTimeRemaining((prevTime) => {
+          const updatedTime = prevTime - 1;
+          localStorage.setItem("timeRemaining", String(updatedTime)); // Save timer state to localStorage
+          return updatedTime;
+        });
       }, 1000);
 
       return () => clearInterval(timer);
     }
 
-    // Trigger auto-submit when time is up
     if (timeRemaining === 0) {
       handleSubmit();
     }
@@ -112,6 +137,8 @@ const QuestionPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+
+    localStorage.setItem("timeRemaining", "0");
     // Clear password cookie
     document.cookie =
       "password=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
