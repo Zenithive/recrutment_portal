@@ -91,7 +91,7 @@ export default function LoginPage() {
   
         // Redirect to the admin dashboard
         // router.push("/dashboard-for-admin");
-        router.push("/create-test");
+        router.push("/dashboard-for-admin");
         return;
       }
   
