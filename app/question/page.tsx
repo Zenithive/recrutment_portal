@@ -136,35 +136,101 @@ const QuestionPage: React.FC = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  // const handleSubmit = async () => {
 
+  //   localStorage.setItem("timeRemaining", "0");
+  //   // Clear password cookie
+  //   document.cookie =
+  //     "password=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+
+  //   const answersWithDetails = selectedAnswers.map((selectedAnswer, index) => {
+  //     const question = questions[index];
+  //     return {
+  //       questionId: question.id, // Store the unique ID of the question
+  //       selectedOption: selectedAnswer,
+  //       correctOption: question.correctOption, // Store the correct option
+  //       isCorrect: selectedAnswer === question.correctOption, // Compare selected and correct option
+  //     };
+  //   });
+
+  //   console.log("Submitted Answers:", answersWithDetails);
+
+  //   // Calculate the result (correct/total)
+  //   const correctAnswers = answersWithDetails.filter(
+  //     (answer) => answer.isCorrect
+  //   ).length;
+  //   const totalQuestions = questions.length;
+  //   const result = `${correctAnswers}/${totalQuestions}`;
+
+  //   // Store the result in Supabase
+  //   const { error } = await supabase
+  //     .from("results") // Your results table name
+  //     .insert([
+  //       {
+  //         testid: testid,
+  //         username: username,
+  //         result: result,
+  //       },
+  //     ]);
+
+  //   if (error) {
+  //     console.error("Error storing result:", error.message);
+  //   } else {
+  //     console.log("Result stored successfully:", result);
+  //   }
+
+  //   setShowResult(true); // Show the result after submission
+  // };
+
+
+
+  
+
+
+  const handleSubmit = async () => {
     localStorage.setItem("timeRemaining", "0");
-    // Clear password cookie
     document.cookie =
       "password=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-
+  
+    // Check if the username already exists in the results table
+    const { data: existingResult, error: fetchError } = await supabase
+      .from("results")
+      .select("*")
+      .eq("username", username)
+      // .eq("testid", testid); // Include the testid as well, to ensure you're checking the specific test
+  
+    if (fetchError) {
+      console.error("Error checking existing result:", fetchError.message);
+      return;
+    }
+  
+    if (existingResult && existingResult.length > 0) {
+      alert("You have already submitted the test. Multiple submissions are not allowed.");
+      return;
+    }
+  
+    // Process the answers and calculate the result
     const answersWithDetails = selectedAnswers.map((selectedAnswer, index) => {
       const question = questions[index];
       return {
-        questionId: question.id, // Store the unique ID of the question
+        questionId: question.id,
         selectedOption: selectedAnswer,
-        correctOption: question.correctOption, // Store the correct option
-        isCorrect: selectedAnswer === question.correctOption, // Compare selected and correct option
+        correctOption: question.correctOption,
+        isCorrect: selectedAnswer === question.correctOption,
       };
     });
-
+  
     console.log("Submitted Answers:", answersWithDetails);
-
-    // Calculate the result (correct/total)
+  
     const correctAnswers = answersWithDetails.filter(
       (answer) => answer.isCorrect
     ).length;
     const totalQuestions = questions.length;
     const result = `${correctAnswers}/${totalQuestions}`;
-
-    // Store the result in Supabase
-    const { error } = await supabase
-      .from("results") // Your results table name
+  
+    // Store the result in the database
+    const { error: insertError } = await supabase
+      .from("results")
       .insert([
         {
           testid: testid,
@@ -172,15 +238,16 @@ const QuestionPage: React.FC = () => {
           result: result,
         },
       ]);
-
-    if (error) {
-      console.error("Error storing result:", error.message);
-    } else {
-      console.log("Result stored successfully:", result);
+  
+    if (insertError) {
+      console.error("Error storing result:", insertError.message);
+      return;
     }
-
+  
+    console.log("Result stored successfully:", result);
     setShowResult(true); // Show the result after submission
   };
+  
 
   if (questions.length === 0) {
     return <div>Loading questions...</div>;

@@ -17,8 +17,6 @@ const Sidebar = () => {
   // Menu items
   const menuItems = [
     { name: "Dashboard", icon: <FiHome size={24} /> },
-    { name: "Exams", icon: <FiClipboard size={24} /> },
-    { name: "Register", icon: <FiUser size={24} /> },
     { name: "Reports", icon: <FiFileText size={24} /> },
     { name: "Create Question Paper", icon: <FiFileText size={24} /> }, // New menu item
   ];
@@ -27,9 +25,13 @@ const Sidebar = () => {
   const handleClick = (itemName: string) => {
     setActive(itemName);
 
-    // Redirect to '/add-question-paper' when the "Create Question Paper" item is clicked
-    if (itemName === "Create Question Paper") {
+    // Redirect based on the menu item clicked
+    if (itemName === "Dashboard") {
+      router.push("/dashboard-for-admin"); // Redirect to the dashboard-for-admin page
+    } else if (itemName === "Create Question Paper") {
       router.push("/create-test");
+    } else if (itemName === "Reports") {
+      router.push("/reports");
     }
   };
 
