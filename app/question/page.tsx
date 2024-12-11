@@ -58,7 +58,9 @@ const QuestionPage: React.FC = () => {
   }, []);
 
 
-
+  const shuffleArray=(array: any[])=>{
+    return array.sort(() => Math.random() - 0.5);
+}
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -84,8 +86,11 @@ const QuestionPage: React.FC = () => {
           options: [q.option_a, q.option_b, q.option_c, q.option_d],
           correctOption: q.correct_option_text,
         }));
+
+        const shuffleArrat = shuffleArray(formattedQuestions);
+        shuffleArrat.forEach((a, index) => a.qNo = index+1)
   
-        setQuestions(formattedQuestions);
+        setQuestions(shuffleArrat);
         setSelectedAnswers(Array(data.length).fill(""));
       }
     };
@@ -225,7 +230,7 @@ const QuestionPage: React.FC = () => {
             Time Remaining: {formatTime(timeRemaining)}
           </div>
           <QuestionCard
-            questionNumber={questions[currentQuestionIndex].questionNumber}
+            questionNumber={questions[currentQuestionIndex].qNo}
             totalQuestions={questions[currentQuestionIndex].totalQuestions}
             question={questions[currentQuestionIndex].question}
             imageSrc={questions[currentQuestionIndex].imageSrc}
