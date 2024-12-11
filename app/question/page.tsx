@@ -17,7 +17,7 @@ const QuestionPage: React.FC = () => {
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false); // State to manage showing results
   const [showInstructions, setShowInstructions] = useState(true); // State to manage InstructionCard visibility
-  const [timeRemaining, setTimeRemaining] = useState(1 * 60); // Timer (30 minutes in seconds)
+  const [timeRemaining, setTimeRemaining] = useState(40 * 60); // Timer (30 minutes in seconds)
   const [username, setUsername] = useState<string | null>(null); // Dynamic username from session
   const [testid, setTestid] = useState<number | null>(null); // Dynamic testid
   const router = useRouter();

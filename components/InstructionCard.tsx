@@ -11,11 +11,11 @@ const InstructionCard: React.FC<InstructionCardProps> = ({ onOkay }) => (
         Test Instructions
       </h2>
       <ul className="list-disc list-inside text-gray-700 space-y-2">
-        <li>The paper duration is <span className="font-semibold">30 minutes</span>.</li>
+        <li>The paper duration is <span className="font-semibold">40 minutes</span>.</li>
         <li>If you minimize the page, you will receive a <span className="font-semibold">final warning</span>.</li>
         <li>Do not close this page or you will <span className="font-semibold">lose access</span>.</li>
         <li>Cheating is strictly prohibited and will lead to disqualification.</li>
-        <li>The test is worth <span className="font-semibold">40 marks</span>.</li>
+        <li>The test is worth <span className="font-semibold">50 marks</span>.</li>
       </ul>
       <div className="mt-6 flex justify-center">
         <button
