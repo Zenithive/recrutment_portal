@@ -1,3 +1,5 @@
+"use client"
+import { useEffect } from "react";
 import DeployButton from "@/components/deploy-button";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import HeaderAuth from "@/components/header-auth";
@@ -13,7 +15,7 @@ const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
-export const metadata = {
+const metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Next.js and Supabase Starter Kit",
   description: "The fastest way to build apps with Next.js and Supabase",
@@ -24,6 +26,35 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  useEffect(() => {
+    const isProduction = process.env.NEXT_PUBLIC_IS_PRODUCTION === "true";
+
+    if (isProduction) {
+      // Disable right-click
+      const handleContextMenu = (event: MouseEvent) => {
+        event.preventDefault();
+      };
+      document.addEventListener("contextmenu", handleContextMenu);
+
+      // Disable F12 and other inspect keys
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (
+          event.key === "F12" || // F12
+          (event.ctrlKey && event.shiftKey && (event.key === "I" || event.key === "J")) || // Ctrl+Shift+I or Ctrl+Shift+J
+          (event.ctrlKey && event.key === "U") // Ctrl+U
+        ) {
+          event.preventDefault();
+        }
+      };
+      document.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        document.removeEventListener("contextmenu", handleContextMenu);
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, []);
+
   return (
     <html lang="en" className={GeistSans.className} suppressHydrationWarning>
       <body className="bg-white text-foreground">

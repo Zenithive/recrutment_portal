@@ -4,7 +4,7 @@ import { updateSession } from "@/utils/supabase/middleware";
 export async function middleware(request: NextRequest) {
   // Retrieve usertype and password from cookies
   const usertype = request.cookies.get("usertype")?.value;
-  console.log(`usertype`, usertype);
+  // console.log(`usertype`, usertype);
   const password = request.cookies.get("password")?.value;
 
   // If no usertype is found, restrict access to only /login page
