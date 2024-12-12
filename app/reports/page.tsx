@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
   // Fetch results from Supabase
   useEffect(() => {
     const fetchResults = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await supabase 
         .from("results") // Query the 'results' table
         .select("username, testid, result"); // Select specific fields
 
